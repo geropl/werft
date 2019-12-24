@@ -12,3 +12,6 @@ RUN curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh
 RUN curl -L https://download.docker.com/linux/static/stable/x86_64/docker-19.03.5.tgz | tar xz && \
     mv docker/docker /usr/bin && \
     rm -rf docker
+RUN curl -L https://get.helm.sh/helm-v3.0.2-linux-amd64.tar.gz | tar xz && \
+    mv linux-amd64/helm /usr/bin && \
+    rm -rf linux-amd64
