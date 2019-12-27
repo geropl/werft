@@ -99,7 +99,7 @@ var runGithubCmd = &cobra.Command{
 		defer conn.Close()
 		client := v1.NewWerftServiceClient(conn)
 
-		ctx := context.Background()
+		ctx := withToken(context.Background())
 		resp, err := client.StartGitHubJob(ctx, req)
 		if err != nil {
 			return err

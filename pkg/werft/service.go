@@ -414,3 +414,20 @@ func (srv *Service) StopJob(ctx context.Context, req *v1.StopJobRequest) (*v1.St
 
 	return &v1.StopJobResponse{}, nil
 }
+
+// Login logs users in
+func (srv *Service) Login(req *v1.LoginRequest, serv v1.WerftService_LoginServer) error {
+	if srv.Tokens == nil {
+		return status.Errorf(codes.FailedPrecondition, "login not required")
+	}
+	serv.Send(&v1.LoginResponse{
+		Resp: &v1.LoginResponse_Url{
+			Url: "https://werft.dev",
+		},
+	})
+	return serv.Send(&v1.LoginResponse{
+		Resp: &v1.LoginResponse_Token{
+			Token: "foo",
+		},
+	})
+}

@@ -22,71 +22,68 @@ package cmd
 
 import (
 	"context"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	v1 "github.com/32leaves/werft/pkg/api/v1"
 	"github.com/spf13/cobra"
 )
 
-// jobLogsCmd represents the list command
-var jobLogsCmd = &cobra.Command{
-	Use:   "logs <name>",
-	Short: "Listens to the log output of a job",
-	Args:  cobra.ExactArgs(1),
+// loginCmd represents the job command
+var loginCmd = &cobra.Command{
+	Use:   "login",
+	Short: "Login to werft",
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		conn := dial()
 		defer conn.Close()
 		client := v1.NewWerftServiceClient(conn)
 
-		ctx := withToken(context.Background())
-		resp, err := client.Listen(ctx, &v1.ListenRequest{
-			Name:    args[0],
-			Logs:    v1.ListenRequestLogs_LOGS_RAW,
-			Updates: true,
-		})
+		ctx := context.Background()
+		evts, err := client.Login(ctx, &v1.LoginRequest{})
 		if err != nil {
 			return err
 		}
 
+		var token string
 		for {
-			msg, err := resp.Recv()
+			msg, err := evts.Recv()
 			if err != nil {
 				return err
 			}
-			if msg == nil {
-				return nil
-			}
 
-			update := msg.GetUpdate()
-			if update != nil && update.Phase == v1.JobPhase_PHASE_DONE {
-				return nil
-			}
-			if update != nil {
+			if url := msg.GetUrl(); url != "" {
+				fmt.Printf("Please visit this URL to complete the login:\n\t%s\n\n", url)
 				continue
 			}
 
-			pringLogSlice(msg.GetSlice())
+			token = msg.GetToken()
+			if token != "" {
+				break
+			}
 		}
+
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return err
+		}
+		fn := filepath.Join(home, ".werft", "token")
+		err = os.MkdirAll(filepath.Dir(fn), 0755)
+		if err != nil {
+			return err
+		}
+		err = ioutil.WriteFile(fn, []byte(token), 0600)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("success")
+		return nil
 	},
 }
 
-func pringLogSlice(slice *v1.LogSliceEvent) {
-	if slice.Name == "werft:kubernetes" || slice.Name == "werft:status" {
-		return
-	}
-
-	var tpl string
-	switch slice.Type {
-	case v1.LogSliceType_SLICE_PHASE:
-		tpl = "\033[33m\033[1m{{ .Name }}\t\033[39m{{ .Payload }}\033[0m\n"
-	case v1.LogSliceType_SLICE_CONTENT:
-		tpl = "\033[2m[{{ .Name }}]\033[0m {{ .Payload }}\n"
-	}
-	if tpl == "" {
-		return
-	}
-	prettyPrint(slice, tpl)
-}
-
 func init() {
-	jobCmd.AddCommand(jobLogsCmd)
+	rootCmd.AddCommand(loginCmd)
 }

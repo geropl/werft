@@ -60,7 +60,7 @@ var jobGetCmd = &cobra.Command{
 		defer conn.Close()
 		client := v1.NewWerftServiceClient(conn)
 
-		ctx := context.Background()
+		ctx := withToken(context.Background())
 		resp, err := client.GetJob(ctx, &v1.GetJobRequest{
 			Name: args[0],
 		})

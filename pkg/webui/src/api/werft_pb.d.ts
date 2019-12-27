@@ -4,6 +4,61 @@
 import * as jspb from "google-protobuf";
 import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
 
+export class LoginRequest extends jspb.Message {
+  getProvider(): string;
+  setProvider(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): LoginRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: LoginRequest): LoginRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: LoginRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LoginRequest;
+  static deserializeBinaryFromReader(message: LoginRequest, reader: jspb.BinaryReader): LoginRequest;
+}
+
+export namespace LoginRequest {
+  export type AsObject = {
+    provider: string,
+  }
+}
+
+export class LoginResponse extends jspb.Message {
+  hasUrl(): boolean;
+  clearUrl(): void;
+  getUrl(): string;
+  setUrl(value: string): void;
+
+  hasToken(): boolean;
+  clearToken(): void;
+  getToken(): string;
+  setToken(value: string): void;
+
+  getRespCase(): LoginResponse.RespCase;
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): LoginResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: LoginResponse): LoginResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: LoginResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LoginResponse;
+  static deserializeBinaryFromReader(message: LoginResponse, reader: jspb.BinaryReader): LoginResponse;
+}
+
+export namespace LoginResponse {
+  export type AsObject = {
+    url: string,
+    token: string,
+  }
+
+  export enum RespCase {
+    RESP_NOT_SET = 0,
+    URL = 1,
+    TOKEN = 2,
+  }
+}
+
 export class StartLocalJobRequest extends jspb.Message {
   hasMetadata(): boolean;
   clearMetadata(): void;

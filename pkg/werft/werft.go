@@ -51,6 +51,7 @@ type Service struct {
 	Logs     store.Logs
 	Jobs     store.Jobs
 	Groups   store.NumberGroup
+	Tokens   store.Token
 	Executor *executor.Executor
 	Cutter   logcutter.Cutter
 	GitHub   GitHubSetup
@@ -60,6 +61,9 @@ type Service struct {
 
 	mu          sync.RWMutex
 	logListener map[string]*jobLog
+
+	authProvider        map[string]AuthProvider
+	defaultAuthProvider AuthProvider
 
 	events emitter.Emitter
 }
@@ -79,6 +83,9 @@ func (srv *Service) Start() {
 	}
 	if srv.logListener == nil {
 		srv.logListener = make(map[string]*jobLog)
+	}
+	if srv.authProvider == nil {
+		srv.authProvider = make(map[string]AuthProvider)
 	}
 
 	srv.Executor.OnUpdate = func(pod *corev1.Pod, s *v1.JobStatus) {

@@ -92,6 +92,10 @@ var runCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		tokens, err := postgres.NewTokenStore(db)
+		if err != nil {
+			return err
+		}
 
 		var kubeConfig *rest.Config
 		if cfg.Kubeconfig == "" {
@@ -137,6 +141,7 @@ var runCmd = &cobra.Command{
 			Logs:     logStore,
 			Jobs:     jobStore,
 			Groups:   nrGroups,
+			Tokens:   tokens,
 			Executor: exec,
 			Cutter:   logcutter.DefaultCutter,
 			GitHub: werft.GitHubSetup{
@@ -150,7 +155,7 @@ var runCmd = &cobra.Command{
 		}
 		service.Start()
 
-		grpcServer := grpc.NewServer(grpc.UnaryInterceptor(service.UnaryAuthInterceptor))
+		grpcServer := grpc.NewServer(grpc.UnaryInterceptor(service.UnaryAuthInterceptor), grpc.StreamInterceptor(service.StreamAuthInterceptor))
 		v1.RegisterWerftServiceServer(grpcServer, service)
 		v1.RegisterWerftUIServer(grpcServer, uiservice)
 		go startGRPC(grpcServer, fmt.Sprintf("localhost:%d", cfg.Service.GRPCPort))
@@ -299,10 +304,14 @@ type Config struct {
 	Executor   executor.Config `yaml:"executor"`
 	Kubeconfig string          `yaml:"kubeconfig,omitempty"`
 	GitHub     struct {
-		WebhookSecret  string `yaml:"webhookSecret"`
-		PrivateKeyPath string `yaml:"privateKeyPath"`
-		InstallationID int64  `yaml:"installationID,omitempty"`
-		AppID          int64  `yaml:"appID"`
+		App struct {
+			WebhookSecret  string `yaml:"webhookSecret"`
+			PrivateKeyPath string `yaml:"privateKeyPath"`
+			InstallationID int64  `yaml:"installationID,omitempty"`
+			AppID          int64  `yaml:"appID"`
+		} `yaml:"app"`
+		OAuth struct {
+		} `yaml:"oauth"`
 	} `yaml:"github"`
 	Plugins plugin.Config
 }

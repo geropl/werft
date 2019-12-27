@@ -106,7 +106,7 @@ For example:
 		defer conn.Close()
 		client := v1.NewWerftServiceClient(conn)
 
-		ctx := context.Background()
+		ctx := withToken(context.Background())
 		resp, err := client.ListJobs(ctx, &req)
 		if err != nil {
 			return err

@@ -4,6 +4,9 @@ package v1;
 import "google/protobuf/timestamp.proto";
 
 service WerftService {
+    // Login logs users in
+    rpc Login(LoginRequest) returns (stream LoginResponse) {};
+
     // StartLocalJob starts a job by uploading the workspace content directly. The incoming requests are expected in the following order:
     //   1. metadata
     //   2. all bytes constituting the werft/config.yaml
@@ -29,6 +32,17 @@ service WerftService {
 
     // StopJob stops a currently running job
     rpc StopJob(StopJobRequest) returns (StopJobResponse) {};
+}
+
+message LoginRequest {
+    string provider = 1;
+}
+
+message LoginResponse {
+    oneof resp {
+        string url = 1;
+        string token = 2;
+    };
 }
 
 message StartLocalJobRequest {

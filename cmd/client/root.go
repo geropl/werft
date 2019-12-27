@@ -21,12 +21,16 @@ package cmd
 // THE SOFTWARE.
 
 import (
+	"context"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 var (
@@ -76,4 +80,20 @@ func dial() *grpc.ClientConn {
 	}
 
 	return conn
+}
+
+func withToken(ctx context.Context) context.Context {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ctx
+	}
+
+	fn := filepath.Join(home, ".werft", "token")
+	tkn, err := ioutil.ReadFile(fn)
+	if err != nil {
+		return ctx
+	}
+
+	md := metadata.New(map[string]string{"authorization": string(tkn)})
+	return metadata.NewOutgoingContext(ctx, md)
 }

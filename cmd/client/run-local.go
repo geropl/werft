@@ -97,7 +97,7 @@ var runLocalCmd = &cobra.Command{
 		defer conn.Close()
 		client := v1.NewWerftServiceClient(conn)
 
-		ctx := context.Background()
+		ctx := withToken(context.Background())
 		srv, err := client.StartLocalJob(ctx)
 		if err != nil {
 			return xerrors.Errorf("cannot start job: %w", err)

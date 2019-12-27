@@ -4,6 +4,15 @@
 import * as werft_pb from "./werft_pb";
 import {grpc} from "@improbable-eng/grpc-web";
 
+type WerftServiceLogin = {
+  readonly methodName: string;
+  readonly service: typeof WerftService;
+  readonly requestStream: false;
+  readonly responseStream: true;
+  readonly requestType: typeof werft_pb.LoginRequest;
+  readonly responseType: typeof werft_pb.LoginResponse;
+};
+
 type WerftServiceStartLocalJob = {
   readonly methodName: string;
   readonly service: typeof WerftService;
@@ -69,6 +78,7 @@ type WerftServiceStopJob = {
 
 export class WerftService {
   static readonly serviceName: string;
+  static readonly Login: WerftServiceLogin;
   static readonly StartLocalJob: WerftServiceStartLocalJob;
   static readonly StartGitHubJob: WerftServiceStartGitHubJob;
   static readonly ListJobs: WerftServiceListJobs;
@@ -110,6 +120,7 @@ export class WerftServiceClient {
   readonly serviceHost: string;
 
   constructor(serviceHost: string, options?: grpc.RpcOptions);
+  login(requestMessage: werft_pb.LoginRequest, metadata?: grpc.Metadata): ResponseStream<werft_pb.LoginResponse>;
   startLocalJob(metadata?: grpc.Metadata): RequestStream<werft_pb.StartLocalJobRequest>;
   startGitHubJob(
     requestMessage: werft_pb.StartGitHubJobRequest,
