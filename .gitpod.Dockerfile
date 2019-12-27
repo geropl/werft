@@ -19,3 +19,6 @@ RUN curl -o /usr/bin/k3s -L https://github.com/rancher/k3s/releases/download/v1.
 RUN curl -L https://github.com/TypeFox/leeway/releases/download/v0.0.6/leeway_0.0.6_Linux_x86_64.tar.gz | tar xz && \
     mv leeway /usr/bin/leeway && \
     rm README.md
+
+RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.7.1/migrate.linux-amd64.tar.gz | tar xz && \
+    mv migrate.linux-amd64 /usr/bin/go-migrate
