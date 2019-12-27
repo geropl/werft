@@ -150,7 +150,7 @@ var runCmd = &cobra.Command{
 		}
 		service.Start()
 
-		grpcServer := grpc.NewServer()
+		grpcServer := grpc.NewServer(grpc.UnaryInterceptor(service.UnaryAuthInterceptor))
 		v1.RegisterWerftServiceServer(grpcServer, service)
 		v1.RegisterWerftUIServer(grpcServer, uiservice)
 		go startGRPC(grpcServer, fmt.Sprintf("localhost:%d", cfg.Service.GRPCPort))
