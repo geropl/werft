@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"time"
 
 	v1 "github.com/32leaves/werft/pkg/api/v1"
 )
@@ -61,4 +62,18 @@ type NumberGroup interface {
 	// Next returns the next number in the group. If the group did not exist prior
 	// to this call it is created. This function is thread-safe and atomic.
 	Next(group string) (nr int, err error)
+}
+
+// Token stores store per-user tokens which are valid for some time.
+type Token interface {
+	// Stores a user-token. If a token previously existed for the user,
+	// this is added additionally.
+	Store(token, user string) error
+
+	// Retrieves a user based on the token.
+	// If the tokn is unknown ErrNotFound is returned.
+	Get(token string) (user string, err error)
+
+	// Prune removes all tokens older than maxAge
+	Prune(maxAge time.Duration) error
 }
