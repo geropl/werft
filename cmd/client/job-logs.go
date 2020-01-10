@@ -43,26 +43,14 @@ var jobLogsCmd = &cobra.Command{
 
 		var name string
 		if len(args) == 0 {
-			filter, err := getLocalContextJobFilter()
+			name, err := getLocalContextLastJobName(ctx, client)
 			if err != nil {
 				return err
 			}
-
-			resp, err := client.ListJobs(ctx, &v1.ListJobsRequest{
-				Filter: filter,
-				Order: []*v1.OrderExpression{&v1.OrderExpression{
-					Field:     "created",
-					Ascending: false,
-				}},
-			})
-			if err != nil {
-				return err
-			}
-			if len(resp.Result) == 0 {
+			if name == "" {
 				return xerrors.Errorf("no job found - please specify job name")
 			}
 
-			name = resp.Result[0].Name
 			fmt.Printf("showing logs of \033[34m\033[1m%s\t\033\033[0m\n", name)
 		} else {
 			name = args[0]

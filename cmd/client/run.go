@@ -106,6 +106,29 @@ func getLocalContextJobFilter() ([]*v1.FilterExpression, error) {
 	}, nil
 }
 
+func getLocalContextLastJobName(ctx context.Context, client v1.WerftServiceClient) (string, error) {
+	filter, err := getLocalContextJobFilter()
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := client.ListJobs(ctx, &v1.ListJobsRequest{
+		Filter: filter,
+		Order: []*v1.OrderExpression{&v1.OrderExpression{
+			Field:     "created",
+			Ascending: false,
+		}},
+	})
+	if err != nil {
+		return "", err
+	}
+	if len(resp.Result) == 0 {
+		return "", nil
+	}
+
+	return resp.Result[0].Name, nil
+}
+
 // configureRepoFromOrigin is very much geared towards GitHub origins in the form of:
 //     https://github.com/32leaves/werft.git
 // It might work on others, but that's neither tested nor intended.
