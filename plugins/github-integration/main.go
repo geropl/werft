@@ -215,6 +215,8 @@ func (p *githubTriggerPlugin) HandleGithubWebhook(w http.ResponseWriter, r *http
 		return
 	}
 
+	log.Infof("X-Hub-Signature is: '%s'", r.Header["X-Hub-Signature"])
+	log.Infof("webhookSecret is: '%s'", p.Config.WebhookSecret)
 	payload, err := github.ValidatePayload(r, []byte(p.Config.WebhookSecret))
 	if err != nil && strings.Contains(err.Error(), "unknown X-Github-Event") {
 		err = nil

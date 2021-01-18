@@ -1,5 +1,7 @@
 FROM gitpod/workspace-postgres
 
+ENV TRIGGER=1
+
 USER root
 
 ENV PROTOC_ZIP=protoc-3.7.1-linux-x86_64.zip
